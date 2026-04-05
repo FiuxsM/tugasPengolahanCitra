@@ -1,0 +1,40 @@
+import cv2
+import os
+import matplotlib.pyplot as plt
+os.makedirs('cache', exist_ok=True)
+# Baca gambar grayscale (dokumen asli)
+img = cv2.imread('images/fotoMorfo.jpeg', 0)
+if img is None:
+	print("File tidak ditemukan")
+	exit()
+# tambahin blur tipis (opsional tapi disarankan)
+img_blur = cv2.GaussianBlur(img, (5,5), 0)
+# Binerisasi (pakai Otsu biar otomatis)
+_, bw = cv2.threshold(img_blur, 0, 255, cv2.THRESH_BINARY +
+cv2.THRESH_OTSU)
+# Structuring element
+se = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+# Opening (hapus noise kecil)
+opening = cv2.morphologyEx(bw, cv2.MORPH_OPEN, se)
+# Closing (tutup lubang kecil)
+closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, se)
+# Simpan
+cv2.imwrite('cache/original.png', img)
+cv2.imwrite('cache/binary.png', bw)
+cv2.imwrite('cache/opening.png', opening)
+cv2.imwrite('cache/closing.png', closing)
+# Tampilkan (sesuai urutan yang lo mau)
+plt.figure(figsize=(12,3))
+plt.subplot(1,3,1)
+plt.title('Sumber')
+plt.imshow(img, cmap='gray')
+plt.axis('off')
+plt.subplot(1,3,2)
+plt.title('Biner + Noise')
+plt.imshow(bw, cmap='gray')
+plt.axis('off')
+plt.subplot(1,3,3)
+plt.title('Opening/Closing')
+plt.imshow(closing, cmap='gray')
+plt.axis('off')
+plt.show()
