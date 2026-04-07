@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 # Load gambar dalam mode grayscale
-img = cv2.imread('foto.jpg', 0)
+img = cv2.imread('images/foto.jpg', 0)
 if img is None:
 	print("File gambar tidak ditemukan!")
 else:
@@ -16,7 +16,7 @@ magnitude_spectrum = 20 * np.log(np.abs(fshift))
 plt.figure(figsize=(12, 6))
 plt.subplot(121)
 plt.imshow(img, cmap='gray')
-plt.title('BEFORE (Citra Asli)')
+plt.title('Sumber (Citra Asli)')
 plt.axis('off')
 plt.subplot(122)
 plt.imshow(magnitude_spectrum, cmap='gray')

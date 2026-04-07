@@ -1,27 +1,55 @@
 import cv2
 import pywt
+import numpy as np
 import matplotlib.pyplot as plt
-# Load gambar dalam mode grayscale
+
+# Load gambar grayscale
 img = cv2.imread('images/foto.jpg', 0)
+
 if img is None:
-	print("File gambar tidak ditemukan!")
-else:
-# --- Proses Wavelet Transform (Metode Haar) ---
-# Melakukan dekomposisi 1 level
-# LL: Aproksimasi, (LH, HL, HH): Detail Horizontal, Vertikal, Diagonal
- coeffs2 = pywt.dwt2(img, 'haar')
+    print("File gambar tidak ditemukan!")
+    exit()
+
+# ======================
+# DWT (Wavelet Haar)
+# ======================
+coeffs2 = pywt.dwt2(img, 'haar')
 LL, (LH, HL, HH) = coeffs2
-# --- Visualisasi Before & After ---
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
+
+# ======================
+# DENOISING (threshold detail)
+# ======================
+threshold = 20  # bisa diatur (semakin besar = makin halus)
+
+LH_d = pywt.threshold(LH, threshold, mode='soft')
+HL_d = pywt.threshold(HL, threshold, mode='soft')
+HH_d = pywt.threshold(HH, threshold, mode='soft')
+
+# ======================
+# Inverse DWT (balik ke gambar)
+# ======================
+coeffs2_denoised = (LL, (LH_d, HL_d, HH_d))
+img_denoised = pywt.idwt2(coeffs2_denoised, 'haar')
+
+# ======================
+# Visualisasi
+# ======================
+plt.figure(figsize=(15,5))
+
+plt.subplot(131)
 plt.imshow(img, cmap='gray')
-plt.title('Sumber (Citra Asli)')
+plt.title('Citra Asli')
 plt.axis('off')
-plt.subplot(122)
-# Kita tampilkan LL sebagai hasil transformasi 'After'
+
+plt.subplot(132)
 plt.imshow(LL, cmap='gray')
-plt.title('AFTER (Wavelet LL - Aproksimasi)')
+plt.title('LL (Aproksimasi)')
 plt.axis('off')
-plt.suptitle('Transformasi Wavelet (Discrete Wavelet Transform)',
-			 fontsize=16)
+
+plt.subplot(133)
+plt.imshow(img_denoised, cmap='gray')
+plt.title('Hasil Denoising Wavelet')
+plt.axis('off')
+
+plt.suptitle('Wavelet Denoising Multi-Resolusi (Haar)', fontsize=14)
 plt.show()
